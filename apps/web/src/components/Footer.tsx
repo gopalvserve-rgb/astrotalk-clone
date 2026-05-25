@@ -1,10 +1,6 @@
 import Link from "next/link";
-import { resolveTenant } from "@/lib/tenant";
 
-export async function Footer() {
-  const tenant = await resolveTenant().catch(() => null);
-  const brand = tenant?.theme.brandName ?? "Astrotalk";
-
+export function Footer({ brand = "Astrotalk" }: { brand?: string } = {}) {
   return (
     <footer className="mt-24 border-t border-white/10 bg-[var(--color-secondary)] text-white/80">
       <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-4 gap-8">
