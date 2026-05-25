@@ -1,7 +1,0 @@
-@tailwind base; @tailwind components; @tailwind utilities;
-html, body { background:#0b1020; color: #fff; font-family: system-ui, sans-serif; }
-.btn { @apply rounded-lg px-4 py-2 font-medium; }
-.btn-primary { @apply btn bg-amber-500 text-slate-900 hover:bg-amber-400; }
-.btn-outline { @apply btn border border-white/15 hover:bg-white/5; }
-.card { @apply rounded-xl border border-white/10 bg-white/5; }
-.input { @apply w-full rounded-lg bg-black/30 border border-white/10 text-white px-3 py-2; }
