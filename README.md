@@ -68,3 +68,5 @@ Toggle any of them off and they vanish from the app, the API, and the user's UI.
 ## License
 
 Proprietary — for internal / client use only.
+
+<!-- deployed: 2026-05-25T11:53:19Z -->
