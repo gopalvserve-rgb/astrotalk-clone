@@ -9,8 +9,9 @@ export async function callDeepSeek(opts: {
   prompt: string;
   modelOverride?: string;
   systemPrompt?: string;
+  apiKey?: string;
 }): Promise<{ text: string; model: string; raw: unknown }> {
-  const key = process.env.DEEPSEEK_API_KEY;
+  const key = opts.apiKey || process.env.DEEPSEEK_API_KEY;
   if (!key) throw new Error("DEEPSEEK_API_KEY not set");
 
   const model = opts.modelOverride || DEFAULT_MODEL;

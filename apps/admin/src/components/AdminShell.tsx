@@ -14,6 +14,7 @@ const NAV = [
   { label: "Articles",     href: "/articles",    emoji: "📰" },
   { label: "Users",        href: "/users",       emoji: "👤" },
   { label: "Wallet Audit", href: "/wallet",      emoji: "💰" },
+  { label: "AI Usage",     href: "/ai-usage",   emoji: "🤖" },
   { label: "Settings",     href: "/settings",    emoji: "⚙" },
 ];
 

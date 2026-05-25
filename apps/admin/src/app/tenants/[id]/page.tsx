@@ -27,6 +27,7 @@ export default async function TenantDetail({ params }: { params: { id: string } 
   return (
     <AdminShell title={t.name}>
       <div className="text-white/60 text-sm">Slug: {t.slug} · Status: {t.status}</div>
+      <div className="mt-3 flex gap-2"><a href={`/tenants/${t.id}/settings`} className="btn-outline text-xs">🔑 API Keys</a><a href={`/tenants/${t.id}/theme`} className="btn-outline text-xs">🎨 Theme</a><a href={`/tenants/${t.id}/billing`} className="btn-outline text-xs">💳 Billing</a></div>
 
       <h2 className="mt-8 text-xl font-semibold">Domains</h2>
       <ul className="card mt-2 divide-y divide-white/5">

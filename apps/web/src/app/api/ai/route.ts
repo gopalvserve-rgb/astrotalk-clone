@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ai } from "@astrotalk/ai";
+import { getMasterDb } from "@astrotalk/db";
+import { makeCredentialResolver } from "@astrotalk/shared";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveTenant, tenantDb, isModuleEnabled } from "@/lib/tenant";
 
@@ -98,15 +100,34 @@ export async function POST(req: Request) {
     },
   });
 
+  // Resolve tenant-stored credentials (encrypted in tenant_settings) — fall back to env
+  const master = getMasterDb();
+  const creds = makeCredentialResolver({
+    async read(key) { const r = await master.tenantSetting.findUnique({ where: { tenantId_key: { tenantId: tenant.id, key } } }); return r?.value ?? null; },
+    async write() {},
+  });
+  const PROVIDER_TASK_MAP: Record<string, "gemini" | "deepseek"> = {
+    kundali_reading:"deepseek", numerology_report:"deepseek", vastu_consult:"deepseek",
+    tarot_reading:"deepseek", business_name:"gemini", baby_name:"gemini",
+    face_reading:"gemini", palm_reading:"gemini", horoscope_daily:"deepseek",
+    compatibility:"deepseek", match_making:"deepseek", chat_fallback:"gemini",
+  };
+  const routedProvider = PROVIDER_TASK_MAP[task] ?? "gemini";
+  const tenantApiKey = await creds.get(routedProvider === "gemini" ? "gemini_api_key" : "deepseek_api_key");
+
   // Run AI
   const t0 = Date.now();
   try {
-    const result = await ai.complete({ task: task as any, input, image, language, userId: user.uid });
+    const result = await ai.complete({
+      task: task as any, input, image, language, userId: user.uid,
+      tenantConfig: tenantApiKey ? { apiKey: tenantApiKey } : undefined,
+    });
     await db.aiReport.update({
       where: { id: report.id },
       data: {
         outputText: result.text, provider: result.provider, model: result.model,
         status: "done", durationMs: Date.now() - t0, completedAt: new Date(),
+        cost: result.costUsd as any,
       },
     });
     return NextResponse.json({ ok: true, reportId: report.id, text: result.text, provider: result.provider });

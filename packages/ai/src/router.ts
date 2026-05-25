@@ -13,6 +13,7 @@
 import { callGemini, callGeminiVision } from "./providers/gemini";
 import { callDeepSeek } from "./providers/deepseek";
 import { PROMPTS, type PromptTask } from "./prompts";
+import { estimateCostUsd, estTokens } from "./cost";
 
 export type AiProvider = "gemini" | "deepseek";
 
@@ -41,7 +42,7 @@ export interface CompleteArgs {
   /** override the routed provider */
   forceProvider?: AiProvider;
   /** tenant-level config (e.g. per-tenant model override) */
-  tenantConfig?: { provider?: AiProvider; model?: string };
+  tenantConfig?: { provider?: AiProvider; model?: string; apiKey?: string };
   userId?: string;
   language?: string;
 }
@@ -73,19 +74,23 @@ export async function complete(args: CompleteArgs): Promise<CompleteResult> {
       ({ text, model, raw } = await callGeminiVision({
         prompt, image: args.image,
         modelOverride: args.tenantConfig?.model,
+        apiKey: args.tenantConfig?.apiKey,
       }));
     } else {
       ({ text, model, raw } = await callGemini({
         prompt, modelOverride: args.tenantConfig?.model,
+        apiKey: args.tenantConfig?.apiKey,
       }));
     }
   } else {
     ({ text, model, raw } = await callDeepSeek({
       prompt, modelOverride: args.tenantConfig?.model,
+      apiKey: args.tenantConfig?.apiKey,
     }));
   }
 
-  return { provider, model, text, raw, durationMs: Date.now() - start };
+  const costUsd = estimateCostUsd(provider, model, estTokens(prompt), estTokens(text));
+  return { provider, model, text, raw, durationMs: Date.now() - start, costUsd };
 }
 
 export const ai = { complete };
