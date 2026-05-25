@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getMasterDb } from "@astrotalk/db";
 import { CREDENTIAL_KEYS } from "@astrotalk/shared";
 
+
+export const dynamic = "force-dynamic";
 export default async function TenantSettings({ params }: { params: { id: string } }) {
   const db = getMasterDb();
   const tenant = await db.tenant.findUniqueOrThrow({ where: { id: params.id } });

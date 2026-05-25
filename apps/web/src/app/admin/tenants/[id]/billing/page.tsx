@@ -1,5 +1,7 @@
 import { AdminShell } from "../../../../../components/admin/AdminShell";
 
+
+export const dynamic = "force-dynamic";
 export default async function BillingPage({ params }: { params: { id: string } }) {
   // Phase 8.x — read actual usage from tenant DB (AI calls, consultations, storage)
   return (

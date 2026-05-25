@@ -2,6 +2,8 @@ import { AdminShell } from "../../../../../components/admin/AdminShell";
 import { getMasterDb } from "@astrotalk/db";
 import { revalidatePath } from "next/cache";
 
+
+export const dynamic = "force-dynamic";
 export default async function ThemeBuilder({ params }: { params: { id: string } }) {
   const db = getMasterDb();
   const t = await db.tenant.findUniqueOrThrow({ where: { id: params.id }, include: { theme: true } });

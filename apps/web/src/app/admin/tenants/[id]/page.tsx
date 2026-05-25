@@ -3,6 +3,8 @@ import { getMasterDb } from "@astrotalk/db";
 import { MODULES, type ModuleKey } from "@astrotalk/shared";
 import { revalidatePath } from "next/cache";
 
+
+export const dynamic = "force-dynamic";
 export default async function TenantDetail({ params }: { params: { id: string } }) {
   const db = getMasterDb();
   const t = await db.tenant.findUniqueOrThrow({

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AdminShell } from "../../../components/admin/AdminShell";
 import { getMasterDb } from "@astrotalk/db";
 
+
+export const dynamic = "force-dynamic";
 export default async function TenantsPage() {
   const db = getMasterDb();
   const tenants = await db.tenant.findMany({

@@ -1,6 +1,8 @@
 import { AdminShell } from "../../../components/admin/AdminShell";
 import { MODULES } from "@astrotalk/shared";
 
+
+export const dynamic = "force-dynamic";
 export default function ModulesPage() {
   return (
     <AdminShell title="Module Catalogue">

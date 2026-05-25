@@ -3,6 +3,8 @@ import { Footer } from "../../components/Footer";
 import { resolveTenant, tenantDb, isModuleEnabled } from "../../lib/tenant";
 import { notFound } from "next/navigation";
 
+
+export const dynamic = "force-dynamic";
 export default async function YatraPage() {
   const tenant = await resolveTenant();
   if (!isModuleEnabled(tenant, "yatra_booking")) notFound();
