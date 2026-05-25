@@ -1,15 +1,19 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "pnpm-9_x", "openssl"]
+nixPkgs = ["nodejs_20", "openssl"]
+aptPkgs = ["ca-certificates"]
 
 [phases.install]
-cmds = ["pnpm install --no-frozen-lockfile"]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@9 --activate",
+  "pnpm install --no-frozen-lockfile"
+]
 
 [phases.build]
 cmds = [
   "pnpm db:generate",
-  "pnpm --filter @astrotalk/db migrate:deploy || echo 'migrations will run at first request'",
   "pnpm --filter @astrotalk/web build"
 ]
 
 [start]
-cmd = "pnpm --filter @astrotalk/web start"
+cmd = "pnpm --filter @astrotalk/web start -- -p ${PORT:-3000}"
