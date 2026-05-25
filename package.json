@@ -1,0 +1,33 @@
+{
+  "name": "astrotalk-clone",
+  "version": "0.1.0",
+  "private": true,
+  "description": "White-label astrology platform — clone of astrotalk.com",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "db:generate": "pnpm --filter @astrotalk/db generate",
+    "db:migrate": "pnpm --filter @astrotalk/db migrate",
+    "db:seed": "pnpm --filter @astrotalk/db seed",
+    "db:studio": "pnpm --filter @astrotalk/db studio",
+    "tenant:create": "node tools/tenant-provisioner/index.js"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "prettier": "^3.2.0",
+    "eslint": "^8.57.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

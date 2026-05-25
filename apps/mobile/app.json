@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Astrotalk",
+    "slug": "astrotalk",
+    "scheme": "astrotalk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#1A1230" },
+    "userInterfaceStyle": "automatic",
+    "android": { "package": "com.astrotalk.clone", "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#F26B1D" } },
+    "ios":     { "bundleIdentifier": "com.astrotalk.clone", "supportsTablet": true },
+    "plugins": ["expo-secure-store", "expo-notifications", "expo-image-picker"],
+    "extra": {
+      "apiBase": "https://demo.astrotalk-clone.com",
+      "tenantHost": "demo.astrotalk-clone.com"
+    }
+  }
+}

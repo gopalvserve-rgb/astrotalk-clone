@@ -1,0 +1,30 @@
+# Caddy multi-domain config for white-label deployment.
+# All tenant domains and the admin domain are configured here.
+# Caddy provisions TLS for each automatically.
+
+{
+  email ops@your-platform.com
+}
+
+# Catch-all tenant domains — add domains here as you onboard tenants.
+demo.localhost, client1.com, client2.com, client3.com {
+  reverse_proxy web:3000
+  encode gzip zstd
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    Referrer-Policy strict-origin-when-cross-origin
+  }
+}
+
+# Admin panel
+admin.your-platform.com {
+  reverse_proxy web:3001
+  encode gzip zstd
+}
+
+# Astrologer sub-domain (Phase 4)
+astrologer.your-platform.com {
+  reverse_proxy web:3002
+}

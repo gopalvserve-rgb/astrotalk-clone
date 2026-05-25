@@ -1,0 +1,725 @@
+// =================================================================
+//  AstroTalk Clone — Prisma Schema
+// =================================================================
+//
+//  Two logical databases:
+//
+//  ┌─────────────────────────────────────────────────────────────┐
+//  │  master DB                                                  │
+//  │   ├── Tenant            (every white-label site)            │
+//  │   ├── TenantDomain      (custom domains per tenant)         │
+//  │   ├── SuperAdmin        (you — the platform operator)       │
+//  │   ├── TenantModule      (per-tenant module enable/disable)  │
+//  │   └── TenantTheme       (branding per tenant)               │
+//  └─────────────────────────────────────────────────────────────┘
+//
+//  For Phase 1 we use a SINGLE Prisma schema with a tenantId column
+//  on every row, and at runtime we route to the right Postgres DB
+//  using the connection-string template from .env. Each tenant gets
+//  its own DB via the tenant-provisioner CLI.
+//
+//  This file is the FULL schema (master + tenant) — the provisioner
+//  creates a fresh DB per tenant and runs `prisma migrate deploy`
+//  against it. Rows in Tenant/SuperAdmin live only in master DB.
+//
+// =================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =================================================================
+//  MASTER DB tables — only used in the master DB
+// =================================================================
+
+model Tenant {
+  id            String          @id @default(cuid())
+  slug          String          @unique               // e.g. "astrotalk-india"
+  name          String                                // e.g. "Astrotalk India"
+  status        TenantStatus    @default(ACTIVE)
+  dbConnString  String                                 // encrypted at rest
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  domains       TenantDomain[]
+  modules       TenantModule[]
+  theme         TenantTheme?
+  settings      TenantSetting[]
+
+  @@map("tenants")
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+  DELETED
+}
+
+model TenantDomain {
+  id         String   @id @default(cuid())
+  tenantId   String
+  domain     String   @unique                  // "astro.client.com"
+  isPrimary  Boolean  @default(false)
+  verified   Boolean  @default(false)
+  sslStatus  String?
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("tenant_domains")
+}
+
+model TenantTheme {
+  id              String  @id @default(cuid())
+  tenantId        String  @unique
+  brandName       String                             // "Astrotalk"
+  logoUrl         String?
+  faviconUrl      String?
+  primaryColor    String  @default("#F26B1D")        // saffron
+  secondaryColor  String  @default("#1A1230")        // night-sky
+  accentColor     String  @default("#F5C518")        // gold
+  fontFamily      String  @default("Inter")
+  customCss       String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("tenant_themes")
+}
+
+model TenantModule {
+  id        String  @id @default(cuid())
+  tenantId  String
+  moduleKey String                                   // see packages/shared/modules.ts
+  enabled   Boolean @default(true)
+  config    Json?                                     // module-specific config
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  @@unique([tenantId, moduleKey])
+  @@map("tenant_modules")
+}
+
+model TenantSetting {
+  id        String   @id @default(cuid())
+  tenantId  String
+  key       String
+  value     String?                                   // JSON string
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@map("tenant_settings")
+}
+
+model SuperAdmin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("super_admin")
+  createdAt    DateTime @default(now())
+  lastLoginAt  DateTime?
+
+  @@map("super_admins")
+}
+
+// =================================================================
+//  TENANT DB tables — exist in EACH tenant DB
+// =================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  phone         String?   @unique
+  email         String?   @unique
+  passwordHash  String?
+  name          String?
+  gender        String?
+  dob           DateTime?
+  birthTime     String?                              // "HH:mm"
+  birthPlace    String?
+  birthLat      Float?
+  birthLng      Float?
+  language      String    @default("en")
+  avatarUrl     String?
+  isPhoneVerified Boolean @default(false)
+  isEmailVerified Boolean @default(false)
+  status        String    @default("active")         // active|suspended|deleted
+  referralCode  String?   @unique
+  referredBy    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  wallet        Wallet?
+  sessions      Session[]
+  consultations Consultation[]
+  orders        Order[]
+  poojaBookings PoojaBooking[]
+  yatraBookings YatraBooking[]
+  sewaDonations SewaDonation[]
+  reports       AiReport[]
+  reviews       Review[]
+  addresses     Address[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  device    String?
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Decimal  @default(0) @db.Decimal(12, 2)   // INR
+  currency  String   @default("INR")
+  updatedAt DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+
+  @@map("wallets")
+}
+
+model WalletTransaction {
+  id          String                  @id @default(cuid())
+  walletId    String
+  type        WalletTxType
+  amount      Decimal                 @db.Decimal(12, 2)
+  balanceAfter Decimal                @db.Decimal(12, 2)
+  status      WalletTxStatus          @default(PENDING)
+  reference   String?                                                // e.g. Cashfree order_id, consultation id
+  gateway     String?                                                // "cashfree"
+  gatewayTxId String?
+  description String?
+  meta        Json?
+  createdAt   DateTime                @default(now())
+  completedAt DateTime?
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@map("wallet_transactions")
+}
+
+enum WalletTxType {
+  RECHARGE
+  DEDUCT_CONSULTATION
+  DEDUCT_AI
+  DEDUCT_ORDER
+  DEDUCT_POOJA
+  DEDUCT_YATRA
+  REFUND
+  BONUS
+  REFERRAL
+  PAYOUT
+}
+
+enum WalletTxStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// =================================================================
+//  Astrologers / Pandits — real or AI
+// =================================================================
+
+model Astrologer {
+  id              String            @id @default(cuid())
+  name            String
+  displayName     String?
+  type            AstrologerType    @default(HUMAN)
+  category        AstroCategory     @default(ASTROLOGY)
+  bio             String?
+  avatarUrl       String?
+  experienceYears Int               @default(0)
+  languages       String[]                            // ["en","hi","ta"]
+  specialties     String[]                            // ["Vedic","Tarot","Numerology"]
+  rateChatPerMin  Decimal           @db.Decimal(8, 2) @default(0)
+  rateCallPerMin  Decimal           @db.Decimal(8, 2) @default(0)
+  rateVideoPerMin Decimal           @db.Decimal(8, 2) @default(0)
+  rating          Float             @default(0)
+  totalOrders     Int               @default(0)
+  isOnline        Boolean           @default(false)
+  isVerified      Boolean           @default(false)
+  isFeatured      Boolean           @default(false)
+  isCelebrity     Boolean           @default(false)
+  aiProvider      String?                              // when type=AI: "gemini" | "deepseek"
+  aiPersonaPrompt String?                              // system prompt for AI
+  payoutAccount   String?                              // for human astrologers
+  status          String            @default("active")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  consultations Consultation[]
+  reviews       Review[]
+
+  @@index([category, isOnline])
+  @@map("astrologers")
+}
+
+enum AstrologerType {
+  HUMAN
+  AI
+}
+
+enum AstroCategory {
+  ASTROLOGY
+  NUMEROLOGY
+  VASTU
+  TAROT
+  PALMISTRY
+  PANDIT
+}
+
+// =================================================================
+//  Consultations (chat / call / video)
+// =================================================================
+
+model Consultation {
+  id            String           @id @default(cuid())
+  userId        String
+  astrologerId  String
+  mode          ConsultationMode
+  status        ConsultationStatus @default(REQUESTED)
+  ratePerMin    Decimal          @db.Decimal(8, 2)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  durationSec   Int              @default(0)
+  totalAmount   Decimal          @default(0) @db.Decimal(10, 2)
+  channelId     String?                                  // for Agora / Socket.IO room
+  endReason     String?
+  isAiSession   Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+
+  user        User       @relation(fields: [userId], references: [id])
+  astrologer  Astrologer @relation(fields: [astrologerId], references: [id])
+  messages    ChatMessage[]
+  review      Review?
+
+  @@index([userId, status])
+  @@map("consultations")
+}
+
+enum ConsultationMode {
+  CHAT
+  CALL
+  VIDEO
+}
+
+enum ConsultationStatus {
+  REQUESTED
+  ACTIVE
+  ENDED
+  CANCELLED
+  EXPIRED
+}
+
+model ChatMessage {
+  id             String   @id @default(cuid())
+  consultationId String
+  senderId       String                                    // user id OR astrologer id
+  senderRole     String                                    // "user" | "astrologer" | "ai"
+  type           String   @default("text")                 // text | image | audio | system
+  body           String
+  mediaUrl       String?
+  createdAt      DateTime @default(now())
+
+  consultation Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@index([consultationId, createdAt])
+  @@map("chat_messages")
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  userId         String
+  astrologerId   String
+  consultationId String?  @unique
+  rating         Int                                       // 1-5
+  comment        String?
+  createdAt      DateTime @default(now())
+
+  user        User          @relation(fields: [userId], references: [id])
+  astrologer  Astrologer    @relation(fields: [astrologerId], references: [id])
+  consultation Consultation? @relation(fields: [consultationId], references: [id])
+
+  @@map("reviews")
+}
+
+// =================================================================
+//  AI features — kundali, numerology, vastu, face/palm/tarot reports
+// =================================================================
+
+model AiReport {
+  id           String   @id @default(cuid())
+  userId       String
+  kind         AiReportKind
+  inputJson    Json
+  outputJson   Json?
+  outputText   String?
+  provider     String                                     // "gemini" | "deepseek"
+  model        String
+  status       String   @default("pending")               // pending|done|failed
+  cost         Decimal? @db.Decimal(10, 4)
+  durationMs   Int?
+  error        String?
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+  @@map("ai_reports")
+}
+
+enum AiReportKind {
+  KUNDALI_READING
+  NUMEROLOGY_REPORT
+  VASTU_CONSULT
+  BUSINESS_NAME
+  BABY_NAME
+  TAROT_READING
+  FACE_READING
+  PALM_READING
+  HOROSCOPE_DAILY
+  COMPATIBILITY
+  MATCH_MAKING
+}
+
+// =================================================================
+//  Shop — Gemstones, Yantras, Rudraksha, etc.
+// =================================================================
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  category    String                                    // "gemstones" | "yantra" | "rudraksha" | "evil_eye" | …
+  description String?
+  shortDesc   String?
+  images      String[]
+  price       Decimal  @db.Decimal(10, 2)
+  compareAt   Decimal? @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  attributes  Json?                                      // weight, origin, certification…
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id          String       @id @default(cuid())
+  userId      String
+  status      OrderStatus  @default(PENDING)
+  total       Decimal      @db.Decimal(10, 2)
+  shipping    Decimal      @default(0) @db.Decimal(10, 2)
+  tax         Decimal      @default(0) @db.Decimal(10, 2)
+  paymentMethod String                                    // "wallet" | "cashfree"
+  paymentRef  String?
+  addressId   String?
+  trackingNo  String?
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user    User        @relation(fields: [userId], references: [id])
+  address Address?    @relation(fields: [addressId], references: [id])
+  items   OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  qty       Int     @default(1)
+  price     Decimal @db.Decimal(10, 2)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+  fullName  String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  country   String  @default("IN")
+  isDefault Boolean @default(false)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders Order[]
+
+  @@map("addresses")
+}
+
+// =================================================================
+//  Pooja booking
+// =================================================================
+
+model PoojaTemplate {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String?
+  imageUrl     String?
+  basePrice    Decimal  @db.Decimal(10, 2)
+  duration     String?                                    // "2 hours"
+  category     String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  bookings PoojaBooking[]
+
+  @@map("pooja_templates")
+}
+
+model PoojaBooking {
+  id           String   @id @default(cuid())
+  userId       String
+  templateId   String
+  panditId     String?                                    // assigned astrologer with category=PANDIT
+  scheduledAt  DateTime
+  duration     String?
+  status       String   @default("requested")             // requested|confirmed|completed|cancelled
+  amount       Decimal  @db.Decimal(10, 2)
+  paymentMethod String  @default("wallet")
+  paymentRef   String?
+  notes        String?
+  liveStreamUrl String?
+  createdAt    DateTime @default(now())
+
+  user     User           @relation(fields: [userId], references: [id])
+  template PoojaTemplate  @relation(fields: [templateId], references: [id])
+
+  @@map("pooja_bookings")
+}
+
+// =================================================================
+//  Yatra booking
+// =================================================================
+
+model Yatra {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String?
+  imageUrl     String?
+  destinations String[]                                  // ["Kedarnath","Badrinath"]
+  startDate    DateTime?
+  endDate      DateTime?
+  price        Decimal  @db.Decimal(10, 2)
+  capacity     Int      @default(50)
+  bookedCount  Int      @default(0)
+  isActive     Boolean  @default(true)
+
+  bookings YatraBooking[]
+
+  @@map("yatras")
+}
+
+model YatraBooking {
+  id           String   @id @default(cuid())
+  yatraId      String
+  userId       String
+  travellers   Int      @default(1)
+  amount       Decimal  @db.Decimal(10, 2)
+  status       String   @default("confirmed")
+  paymentRef   String?
+  createdAt    DateTime @default(now())
+
+  yatra Yatra @relation(fields: [yatraId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("yatra_bookings")
+}
+
+// =================================================================
+//  Sewa donations
+// =================================================================
+
+model SewaCause {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String                                     // "Ann Daan", "Pashu Sewa", "Mandir", "Vastra"
+  description String?
+  imageUrl    String?
+  targetAmount Decimal? @db.Decimal(12, 2)
+  raisedAmount Decimal  @default(0) @db.Decimal(12, 2)
+  isActive    Boolean  @default(true)
+
+  donations SewaDonation[]
+
+  @@map("sewa_causes")
+}
+
+model SewaDonation {
+  id        String   @id @default(cuid())
+  causeId   String
+  userId    String
+  amount    Decimal  @db.Decimal(10, 2)
+  message   String?
+  paymentRef String?
+  createdAt DateTime @default(now())
+
+  cause SewaCause @relation(fields: [causeId], references: [id])
+  user  User      @relation(fields: [userId], references: [id])
+
+  @@map("sewa_donations")
+}
+
+// =================================================================
+//  Live Darshan
+// =================================================================
+
+model LiveDarshan {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String                                     // "youtube" | "rtmp" | "uploaded"
+  url         String                                     // YouTube embed URL or stream URL
+  thumbnailUrl String?
+  isLive      Boolean  @default(false)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  viewerCount Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("live_darshans")
+}
+
+// =================================================================
+//  Meditation & Mantras
+// =================================================================
+
+model MediaItem {
+  id          String   @id @default(cuid())
+  kind        String                                     // "meditation" | "mantra"
+  title       String
+  description String?
+  audioUrl    String
+  durationSec Int      @default(0)
+  language    String   @default("hi")
+  category    String?
+  thumbnailUrl String?
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  playCount   Int      @default(0)
+
+  @@map("media_items")
+}
+
+// =================================================================
+//  Panchang cache (per-day, per-location)
+// =================================================================
+
+model PanchangCache {
+  id        String   @id @default(cuid())
+  date      DateTime
+  lat       Float
+  lng       Float
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@unique([date, lat, lng])
+  @@map("panchang_cache")
+}
+
+// =================================================================
+//  Blog / Content (horoscopes, articles)
+// =================================================================
+
+model Article {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String?
+  body        String                                      // markdown
+  coverUrl    String?
+  category    String?                                     // "horoscope" | "astrology" | "vastu" | …
+  zodiac      String?                                     // for horoscope: "aries"
+  horoscopeType String?                                   // "daily" | "weekly" | "monthly" | "yearly"
+  publishedAt DateTime?
+  authorId    String?
+  isPublished Boolean  @default(false)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, isPublished])
+  @@map("articles")
+}
+
+// =================================================================
+//  Admin (per-tenant admin users)
+// =================================================================
+
+model AdminUser {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  role          String   @default("admin")                // admin | manager | support
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@map("admin_users")
+}
+
+// =================================================================
+//  Audit log
+// =================================================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actorRole String?
+  action    String
+  resource  String?
+  resourceId String?
+  diff      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([resource, resourceId])
+  @@map("audit_logs")
+}

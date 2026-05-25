@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary:   #F26B1D;
+  --color-secondary: #1A1230;
+  --color-accent:    #F5C518;
+}
+
+html, body { background: var(--color-secondary); color: #FFF; }
+
+.tenant-themed { background-color: var(--color-secondary); }
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold;
+  background: var(--color-primary);
+  color: white;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(242,107,29,0.35); }
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold border;
+  border-color: rgba(255,255,255,0.18); color: #fff;
+}
+
+.zodiac-bar {
+  @apply text-2xl tracking-widest opacity-70 select-none;
+  font-family: serif;
+}

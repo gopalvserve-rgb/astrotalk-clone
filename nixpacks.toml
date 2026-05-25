@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "pnpm-9_x", "openssl"]
+
+[phases.install]
+cmds = ["pnpm install --no-frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "pnpm db:generate",
+  "pnpm --filter @astrotalk/db migrate:deploy || echo 'migrations will run at first request'",
+  "pnpm --filter @astrotalk/web build"
+]
+
+[start]
+cmd = "pnpm --filter @astrotalk/web start"

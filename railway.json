@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "pnpm install --frozen-lockfile=false && pnpm db:generate && pnpm --filter @astrotalk/web build"
+  },
+  "deploy": {
+    "startCommand": "pnpm --filter @astrotalk/web start",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3,
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 100
+  }
+}
