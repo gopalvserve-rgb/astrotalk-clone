@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveTenant, tenantDb } from "@/lib/tenant";
 import { issueToken, setSessionCookie } from "@/lib/auth";
-import { OTP_STORE } from "../send-otp/route";
+import { OTP_STORE } from "@/lib/otp-store";
 
 export async function POST(req: Request) {
   const { phone, otp } = await req.json();
@@ -19,7 +19,6 @@ export async function POST(req: Request) {
     await db.user.update({ where: { id: user.id }, data: { isPhoneVerified: true } });
   }
 
-  // Ensure wallet exists
   await db.wallet.upsert({
     where: { userId: user.id }, update: {},
     create: { userId: user.id, balance: 0 },
