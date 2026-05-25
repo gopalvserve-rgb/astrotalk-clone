@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../../components/Header";
+import { Footer } from "../../../components/Footer";
 
 export default function AiKundaliPage() {
   const [form, setForm] = useState({ name: "", date: "", time: "", place: "" });

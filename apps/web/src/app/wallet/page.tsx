@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 import { getCurrentUser } from "@/lib/auth";
 import { resolveTenant, tenantDb } from "@/lib/tenant";
 import RechargeForm from "./RechargeForm";

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../../components/Header";
+import { Footer } from "../../../components/Footer";
 
 export default function AstrologerChatRoom() {
   const params = useParams<{ id: string }>();

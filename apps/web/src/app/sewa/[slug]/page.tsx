@@ -1,5 +1,5 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../../components/Header";
+import { Footer } from "../../../components/Footer";
 import { resolveTenant, tenantDb } from "@/lib/tenant";
 import { notFound } from "next/navigation";
 import DonateForm from "./DonateForm";

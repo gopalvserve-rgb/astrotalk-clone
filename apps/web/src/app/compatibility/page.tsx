@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 
 const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
 

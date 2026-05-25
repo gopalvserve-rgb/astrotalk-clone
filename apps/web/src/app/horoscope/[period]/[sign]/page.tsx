@@ -1,5 +1,5 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../../../components/Header";
+import { Footer } from "../../../../components/Footer";
 import { ai } from "@astrotalk/ai";
 import { resolveTenant, tenantDb } from "@/lib/tenant";
 

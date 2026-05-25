@@ -1,5 +1,5 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 import { getPanchang } from "@astrotalk/astrology";
 
 export default function PanchangPage() {
