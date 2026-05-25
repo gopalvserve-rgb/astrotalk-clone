@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getAdmin } from "@/lib/auth";
+import { getAdmin } from "../lib/auth";
 
 const NAV = [
   { label: "Tenants",      href: "/tenants",     emoji: "🏢" },

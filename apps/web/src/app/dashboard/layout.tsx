@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
+import { getCurrentUser } from "../../lib/auth";
+import { resolveTenant, tenantDb } from "../../lib/tenant";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();

@@ -1,7 +1,7 @@
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 import { notFound } from "next/navigation";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { resolveTenant, tenantDb } from "../../../lib/tenant";
 import AddToCart from "./AddToCart";
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {

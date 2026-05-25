@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../../components/AdminShell";
 import { getMasterDb } from "@astrotalk/db";
 import { MODULES, type ModuleKey } from "@astrotalk/shared";
 import { revalidatePath } from "next/cache";

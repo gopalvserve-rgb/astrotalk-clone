@@ -1,7 +1,7 @@
 import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
-import { getCurrentUser } from "@/lib/auth";
+import { resolveTenant, tenantDb } from "../../../lib/tenant";
+import { getCurrentUser } from "../../../lib/auth";
 import { redirect, notFound } from "next/navigation";
 
 export default async function OrderPage({ params }: { params: { id: string } }) {

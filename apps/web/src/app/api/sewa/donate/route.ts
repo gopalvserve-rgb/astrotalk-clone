@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { getCurrentUser } from "../../../../lib/auth";
+import { resolveTenant, tenantDb } from "../../../../lib/tenant";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();

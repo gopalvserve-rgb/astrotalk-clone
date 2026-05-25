@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../components/AdminShell";
 import { MODULES } from "@astrotalk/shared";
 
 export default function ModulesPage() {

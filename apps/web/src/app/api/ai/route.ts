@@ -3,8 +3,8 @@ import { z } from "zod";
 import { ai } from "@astrotalk/ai";
 import { getMasterDb } from "@astrotalk/db";
 import { makeCredentialResolver } from "@astrotalk/shared";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb, isModuleEnabled } from "@/lib/tenant";
+import { getCurrentUser } from "../../../lib/auth";
+import { resolveTenant, tenantDb, isModuleEnabled } from "../../../lib/tenant";
 
 /**
  * Unified AI endpoint.

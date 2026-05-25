@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { resolveTenant } from "@/lib/tenant";
+import { resolveTenant } from "../../../lib/tenant";
 import { modulesByTab } from "@astrotalk/shared";
 
 export default async function NumerologyDashboard() {

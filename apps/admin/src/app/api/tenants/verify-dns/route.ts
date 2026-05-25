@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { verifyDomain } from "@/lib/dns-verify";
+import { verifyDomain } from "../../../../lib/dns-verify";
 import { getMasterDb } from "@astrotalk/db";
-import { getAdmin } from "@/lib/auth";
+import { getAdmin } from "../../../../lib/auth";
 
 export async function POST(req: Request) {
   if (!(await getAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

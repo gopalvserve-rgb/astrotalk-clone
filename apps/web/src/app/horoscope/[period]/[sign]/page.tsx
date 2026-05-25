@@ -1,7 +1,7 @@
 import { Header } from "../../../../components/Header";
 import { Footer } from "../../../../components/Footer";
 import { ai } from "@astrotalk/ai";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { resolveTenant, tenantDb } from "../../../../lib/tenant";
 
 export const revalidate = 21600; // 6 hours
 

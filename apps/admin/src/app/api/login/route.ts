@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getMasterDb } from "@astrotalk/db";
-import { issueAdminToken, setAdminCookie } from "@/lib/auth";
+import { issueAdminToken, setAdminCookie } from "../../../lib/auth";
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();

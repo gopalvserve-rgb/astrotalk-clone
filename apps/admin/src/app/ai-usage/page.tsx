@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../components/AdminShell";
 import { getMasterDb, getTenantDb } from "@astrotalk/db";
 
 export const dynamic = "force-dynamic";

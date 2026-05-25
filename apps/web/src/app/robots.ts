@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { resolveTenant } from "@/lib/tenant";
+import { resolveTenant } from "../lib/tenant";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   let host = "https://example.com";

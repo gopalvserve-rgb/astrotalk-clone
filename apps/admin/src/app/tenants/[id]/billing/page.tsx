@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../../../components/AdminShell";
 
 export default async function BillingPage({ params }: { params: { id: string } }) {
   // Phase 8.x — read actual usage from tenant DB (AI calls, consultations, storage)

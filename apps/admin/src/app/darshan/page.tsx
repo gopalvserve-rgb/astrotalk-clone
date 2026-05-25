@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../components/AdminShell";
 import { getMasterDb } from "@astrotalk/db";
 
 export default async function DarshanAdminPage() {

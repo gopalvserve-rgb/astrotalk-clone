@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
-import { resolveTenant, tenantDb, isModuleEnabled } from "@/lib/tenant";
+import { resolveTenant, tenantDb, isModuleEnabled } from "../../lib/tenant";
 import { notFound } from "next/navigation";
 
 export default async function BlogIndex() {

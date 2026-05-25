@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { getCurrentUser } from "../../lib/auth";
+import { resolveTenant, tenantDb } from "../../lib/tenant";
 import RechargeForm from "./RechargeForm";
 
 const PRESETS = [100, 200, 500, 1000, 2000, 5000];

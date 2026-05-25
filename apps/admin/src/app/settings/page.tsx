@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../components/AdminShell";
 export default function SettingsPage() {
   return (
     <AdminShell title="Settings">

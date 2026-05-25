@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb, isModuleEnabled } from "@/lib/tenant";
+import { getCurrentUser } from "../../../../lib/auth";
+import { resolveTenant, tenantDb, isModuleEnabled } from "../../../../lib/tenant";
 
 const Body = z.object({
   astrologerId: z.string(),

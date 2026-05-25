@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getMasterDb } from "@astrotalk/db";
 import { MODULES } from "@astrotalk/shared";
-import { getAdmin } from "@/lib/auth";
+import { getAdmin } from "../../../../lib/auth";
 
 export async function POST(req: Request) {
   const admin = await getAdmin();

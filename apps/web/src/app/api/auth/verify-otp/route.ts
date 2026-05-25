@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
-import { issueToken, setSessionCookie } from "@/lib/auth";
-import { OTP_STORE } from "@/lib/otp-store";
+import { resolveTenant, tenantDb } from "../../../../lib/tenant";
+import { issueToken, setSessionCookie } from "../../../../lib/auth";
+import { OTP_STORE } from "../../../../lib/otp-store";
 
 export async function POST(req: Request) {
   const { phone, otp } = await req.json();

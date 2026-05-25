@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getCurrentUser } from "@/lib/auth";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { getCurrentUser } from "../../../lib/auth";
+import { resolveTenant, tenantDb } from "../../../lib/tenant";
 import { createOrder } from "@astrotalk/payments";
 
 export async function POST(req: Request) {

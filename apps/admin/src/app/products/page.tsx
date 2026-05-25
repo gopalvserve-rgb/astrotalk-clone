@@ -1,4 +1,4 @@
-import { AdminShell } from "@/components/AdminShell";
+import { AdminShell } from "../../components/AdminShell";
 export default function ProductsPage() {
   return (
     <AdminShell title="Shop Products">

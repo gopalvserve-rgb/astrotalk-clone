@@ -1,5 +1,5 @@
-import { AdminShell } from "@/components/AdminShell";
-import { tenantCredentials } from "@/lib/credentials";
+import { AdminShell } from "../../../../components/AdminShell";
+import { tenantCredentials } from "../../../../lib/credentials";
 import { revalidatePath } from "next/cache";
 import { getMasterDb } from "@astrotalk/db";
 import { CREDENTIAL_KEYS } from "@astrotalk/shared";

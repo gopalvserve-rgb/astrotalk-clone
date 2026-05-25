@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { resolveTenant, tenantDb } from "../lib/tenant";
 import { MODULES } from "@astrotalk/shared";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

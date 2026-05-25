@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
-import { resolveTenant, tenantDb } from "@/lib/tenant";
+import { resolveTenant, tenantDb } from "../../lib/tenant";
 import CheckoutButton from "./CheckoutButton";
 
 export default async function CartPage() {
