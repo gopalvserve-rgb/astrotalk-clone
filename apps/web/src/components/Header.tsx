@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 
 // Server-safe + Client-safe. For demo: no DB/cookie reads here.
